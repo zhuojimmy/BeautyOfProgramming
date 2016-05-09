@@ -14,7 +14,8 @@ class IDHandler(tornado.web.RequestHandler):
     def get(self):
         start_time = datetime.now()
         print_result = findPath.getResult(self.get_argument('id1'),self.get_argument('id2'))
-        self.write(print_result)
+        self.write(str(print_result))
+        self.write("    Count:" + str(len(print_result)))
         delta = datetime.now() - start_time
         self.write("\n Cost time: %s ms"%(str(delta.microseconds/1000)))
 
