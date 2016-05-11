@@ -8,16 +8,16 @@ import tornado.options
 import tornado.web
 import findPath
 from tornado.options import define, options
-define("port", default=80, help="run on the given port", type=int)
+define("port", default=8008, help="run on the given port", type=int)
 
 class IDHandler(tornado.web.RequestHandler):
     def get(self):
         start_time = datetime.now()
         print_result = findPath.getResult(self.get_argument('id1'),self.get_argument('id2'))
         self.write(str(print_result))
-        self.write("    Count:" + str(len(print_result)))
-        delta = datetime.now() - start_time
-        self.write("\n Cost time: %s ms"%(str(delta.microseconds/1000)))
+        #self.write("    Count:" + str(len(print_result)))
+        #delta = datetime.now() - start_time
+        #self.write("\n Cost time: %s ms"%(str(delta.microseconds/1000)))
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
