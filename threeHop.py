@@ -30,20 +30,20 @@ def three_hop_path(id1,id2):
             Id_list=QueryIdByCId(CIdById)
             if(int(id2) in Id_list):
                 three_hop_path.append([int(id1),tempId,CIdById,int(id2)])  
-
+                   
         AuIdById_list=QueryById(id1)[1]
         for tempAuId in AuIdById_list:
             IdByAuId_list=QueryIdByAuId(tempAuId)
-            for tempId in IdByAuId_list:
-                IdAuIdById_list=QueryById(tempId)[0]+QueryById(tempId)[1]
+            for ttempId in IdByAuId_list:
+                IdAuIdById_list=QueryById(ttempId)[0]+QueryById(ttempId)[1]
                 if(int(id2) in IdAuIdById_list):
-                    three_hop_path.append([int(id1),tempAuId,tempId,int(id2)])
+                    three_hop_path.append([int(id1),tempAuId,ttempId,int(id2)])
             AfIdByAuId_list=QueryAfIdByAuId(tempAuId)
             for tempAfId in AfIdByAuId_list:
                 AuIdByAfId_list=QueryAuIdByAfId(tempAfId)
                 if(int(id2) in AuIdByAfId_list):
                     three_hop_path.append([int(id1),tempAuId,tempAfId,int(id2)])
-
+        '''
         FIdById_list=QueryById(id1)[2]
         for tempFId in FIdById_list:
             Id_list=QueryIdByFId(tempFId)
@@ -63,7 +63,7 @@ def three_hop_path(id1,id2):
                 IdAuIdById_list=QueryById(TempId)[0]+QueryById(TempId)[1]
                 if(int(id2) in IdAuIdById_list):
                     three_hop_path = [[int(id1),CIdById,TempId,int(id2)]]
-
+        '''
     else:
         IdByAuId_list=QueryIdByAuId(id1)
         for tempId in IdByAuId_list:
@@ -90,8 +90,9 @@ def three_hop_path(id1,id2):
             Id_list=QueryIdByCId(CIdById)
             if(int(id2) in Id_list):
                 three_hop_path.append([int(id1),tempId,CIdById,int(id2)])  
-
+        
         AfIdByAuId_list=QueryAfIdByAuId(id2)
+        print AfIdByAuId_list
         for tempAfId in AfIdByAuId_list:
             AuIdByAfId_list=QueryAuIdByAfId(tempAfId)
             for AuId in AuIdByAfId_list:

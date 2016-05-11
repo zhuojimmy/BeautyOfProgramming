@@ -35,10 +35,10 @@ def two_hop_path(id1,id2):
             IdAuIdById_list=QueryById(tempId)[0]+QueryById(tempId)[1]
             if(int(id2) in IdAuIdById_list):
                 two_hop_path.append([int(id1),tempId,int(id2)])
-        AfIdByAuId_list=QueryAfIdByAuId(id2)
+        AfIdByAuId_list=QueryAfIdByAuId(id1)
         for tempAfId in AfIdByAuId_list:
             AuIdByAfId_list=QueryAuIdByAfId(tempAfId)
             if(int(id2) in AuIdByAfId_list):
                 two_hop_path.append([int(id1),tempAfId,int(id2)])
-                
+
     return two_hop_path

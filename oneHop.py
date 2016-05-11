@@ -43,39 +43,12 @@ def QueryById(Id):
         entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
     return entity
 
-'''
-def QueryByAuId(AuId):
-    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % AuId
-    api_return = query_api(expr)
-    return Json_analyze(api_return)
-
-def QueryByAfId(AfId):
-    expr = "expr=composite(AA.AfId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % AfId
-    api_return = query_api(expr)
-    return Json_analyze(api_return)
-
-def QueryByFId(FId):
-    expr = "expr=composite(F.FId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % FId
-    api_return = query_api(expr)
-    return Json_analyze(api_return)
-
-def QueryByCId(CId):
-    expr = "expr=composite(C.CId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % CId
-    api_return = query_api(expr)
-    return Json_analyze(api_return)
-
-def QueryByJId(CId):
-    expr = "expr=composite(J.JId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % CId
-    api_return = query_api(expr)
-    return Json_analyze(api_return)
-'''
-
 def QueryAfIdByAuId(AuId):
     expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId" % AuId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     AfId_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             if "AA" in i:
                 for j in i["AA"]:
@@ -88,7 +61,7 @@ def QueryIdByAuId(AuId):
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             Id_list.append(i['Id'])
     return Id_list
@@ -98,7 +71,7 @@ def QueryAuIdByAfId(AfId):
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     AuId_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             if "AA" in i:
                 for j in i["AA"]:
@@ -112,7 +85,7 @@ def QueryIdByFId(FId):
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             Id_list.append(i['Id'])
     return Id_list
@@ -122,7 +95,7 @@ def QueryIdByCId(CId):
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             Id_list.append(i['Id'])
     return Id_list
@@ -132,7 +105,7 @@ def QueryIdByJId(JId):
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         for i in res_json["entities"]:
             Id_list.append(i['Id'])
     return Id_list
@@ -141,7 +114,7 @@ def isId(id):
     expr = "expr=Id=%s&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % id
     api_return = query_api(expr)
     res_json = json.loads(api_return)
-    if len(res_json["entities"]) > 0:
+    if "entities" in res_json:
         if "AA" in res_json["entities"][0]:
            return True
         else:
