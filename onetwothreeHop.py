@@ -15,11 +15,8 @@ https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=Id=621499171&count=10
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=2140251882)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 刘坤 0512
 这个缓存只在当前进程有效
-缓存中存储的是idAnalysor对象的一个集合，查询添加到query_as_auid，
-添加到cache里的动作:
-    IA.query_as_AuId()
-    cache.add_node(IA)#要加上这句
-呃呃呃给你们添麻烦了，暂时不知道怎样在类的方法中返回自己这个class对象
+缓存中存储的是idAnalysor对象的一个集合，查询添加到query_as_auid中了，
+你们在用的时候应该不用改代码
 效果是:从 180s 到 150s 不知道是不是因为其他因素
 感觉多线程才是王道    
 *//
@@ -33,7 +30,7 @@ from pathCache import pathCache
 
 url_head = "https://oxfordhk.azure-api.net/academic/v1.0/evaluate?"
 key_info = "&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6"
-cache = pathCache()#+++++++cache
+cache = pathCache()
 
 class idAnalysor:
     def __init__(self,id1,id2):
@@ -75,8 +72,8 @@ class idAnalysor:
             self.id_union()            
     # url eg:https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=1982462162)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
     def query_as_AuId(self):
-        query_cache = cache.query_by_id(self.id1)#
-        if query_cache != -1:
+        query_cache = cache.query_by_id(self.id1)#查询返回了一个IDanalysor对象
+        if query_cache != -1:#命中
             self.id_set = query_cache.id_set
             self.AuId_list = query_cache.AuId_list
             self.RId_list = query_cache.RId_list
@@ -85,7 +82,7 @@ class idAnalysor:
             self.JId_list = query_cache.JId_list
             self.FId_list = query_cache.FId_list
             self.Id_list = query_cache.Id_list
-            return
+            return 
         global COUNT 
         expr = "expr=composite(AA.AuId=%s)&count=%d&attributes=Id,AA.AfId"%(self.id1,COUNT)
         api_return = query_api(expr)
@@ -102,11 +99,16 @@ class idAnalysor:
                        # if "AuId" in author:
                          #   self.AuId_list.append(author["AuId"]) 
             self.id_union()
+            cache.add_node(self)
+            #show cache>>>>>>>
+            #for i in cache.node_set:  
+            #    print (str(i.id_set))
+            #<<<<<<<<<
         #id1不是AuId   
         else:
                 self.id_or_AuId = 0
                 self.query_as_Id()
-
+                cache.add_node(self)
 
 
     def is_id1_ID(self):
@@ -132,10 +134,8 @@ def getPath(id1,id2):
     COUNT = 10000
     IA = idAnalysor(id1,id2)
     IA.query_as_AuId()
-    cache.add_node(IA)#
     IB = idAnalysor(id2,id1)
     IB.query_as_AuId()
-    cache.add_node(IB)#
     #单跳
     one_hop_path = []
     if id2 in IA.RId_list:
@@ -157,14 +157,12 @@ def getPath(id1,id2):
     for i in next_set:
         IA_temp = idAnalysor('%d'%i,id2)
         IA_temp.query_as_AuId()
-        cache.add_node(IA_temp)
         if id2 in IA_temp.RId_list:
             #i+1
              two_hop_path_list.append([int(id1),i,int(id2)])
         for j in IA_temp.RId_list:
             IA_temp2 = idAnalysor('%d'%j,id2)
             IA_temp2.query_as_AuId()
-            cache.add_node(IA_temp2)
             if id2 in IA_temp2.RId_list:
                 #1+1+1
                 three_hop_path_list.append([int(id1),i,j,int(id2)])
@@ -177,7 +175,6 @@ def getPath(id1,id2):
         for i in IB.RId_list:
             IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
             IB_temp.query_as_AuId()
-            cache.add_node(IB_temp)
             intersection=IA.id_set & IB_temp.id_set
             for j in intersection:
                 three_hop_path_list.append([int(id1),j,i,int(id2)])   
@@ -185,7 +182,6 @@ def getPath(id1,id2):
         for i in IB.AuId_list:
             IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
             IB_temp.query_as_AuId()
-            cache.add_node(IB_temp)
             intersection=set(IA.AfId_list) & set(IB_temp.AfId_list)
             for j in intersection:
                 three_hop_path_list.append([int(id1),j,i,int(id2)])  
@@ -197,8 +193,9 @@ if __name__ == "__main__":
     print("test")
     start_time = datetime.now()
     result = getPath(id1,id2)
-    print(result)
+    #print(result)
+    #print (str(cache.node_set))
     delta = datetime.now() - start_time
-    print("\nCost time: %s ms"%(str(delta.microseconds/1000)))
+    print("\nCost time: %s s"%(str(delta.microseconds/1000)))
     print("\nans count:%d")%len(result)
     

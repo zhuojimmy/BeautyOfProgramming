@@ -6,7 +6,7 @@ class pathCache:
     #添加节点    
     def add_node(self, node):
         for i_node in self.node_set:
-            if i_node.id1 == id:
+            if i_node.id1 == node.id1:
                 return
         self.node_set.add(node)
  
