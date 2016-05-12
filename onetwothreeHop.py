@@ -5,10 +5,10 @@ The given pair of entity identifiers could be
 Each node of a path should be one of the following identifiers: 
 Id, F.Fid, J.JId, C.CId, AA.AuId, AA.AfId. 
 
-//ÁõÀ¤  0509
-¶ÔÏóÌí¼ÓÁË is_id1_ID()£¬Èç¹ûµ±Ç°id1ÊÇIDÀàĞÍÔòÎªTrue£¬·ñÔòÎªFalse
-ÇëÇó·ÖÎö°¸Àı£º
-Í¬ÑùIdÔÚ²»Í¬Çé¿ö£¨×÷ÎªauidºÍid£©ÏÂ·ÃÎÊµÄ½á¹û
+//åˆ˜å¤  0509
+å¯¹è±¡æ·»åŠ äº† is_id1_ID()ï¼Œå¦‚æœå½“å‰id1æ˜¯IDç±»å‹åˆ™ä¸ºTrueï¼Œå¦åˆ™ä¸ºFalse
+è¯·æ±‚åˆ†ææ¡ˆä¾‹ï¼š
+åŒæ ·Idåœ¨ä¸åŒæƒ…å†µï¼ˆä½œä¸ºauidå’Œidï¼‰ä¸‹è®¿é—®çš„ç»“æœ
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=Id=621499171&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=2140251882)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=Id=621499171&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
@@ -37,9 +37,9 @@ class idAnalysor:
         self.JId_list = []
         self.FId_list = []
         self.Id_list = []
-#½«´ÓÕâ¸öµã²éÑ¯µ½µÄËùÓĞID»ã×ÜÎªÒ»¸ö¼¯ºÏ  id_set,¼´ËùÓĞÏàÁÚ½Úµãid¼¯ºÏ£¬×÷Îª±¾´Î²éÑ¯×îÖÕ´¦ÀíµÄ²½Öè        
+#å°†ä»è¿™ä¸ªç‚¹æŸ¥è¯¢åˆ°çš„æ‰€æœ‰IDæ±‡æ€»ä¸ºä¸€ä¸ªé›†åˆ  id_set,å³æ‰€æœ‰ç›¸é‚»èŠ‚ç‚¹idé›†åˆï¼Œä½œä¸ºæœ¬æ¬¡æŸ¥è¯¢æœ€ç»ˆå¤„ç†çš„æ­¥éª¤        
     def id_union(self):
-        list_sum = self.AuId_list + self.CId_list +self.JId_list +self.AfId_list +self.FId_list#delete the RId list, it is not a node
+        list_sum = self.AuId_list + self.CId_list +self.JId_list +self.FId_list#delete the RId list, it is not a node
 	#print(list_sum)
         self.id_set = set(list_sum)    
 
@@ -69,7 +69,7 @@ class idAnalysor:
         expr = "expr=composite(AA.AuId=%s)&count=%d&attributes=Id,AA.AfId"%(self.id1,COUNT)
         api_return = query_api(expr)
         res_json = json.loads(api_return)
-        #id1ÊÇAuId
+        #id1æ˜¯AuId
         if len(res_json["entities"])>0:
             self.id_or_AuId = 1
             for i in res_json["entities"]:
@@ -81,7 +81,7 @@ class idAnalysor:
                        # if "AuId" in author:
                          #   self.AuId_list.append(author["AuId"]) 
             self.id_union()  
-        #id1²»ÊÇAuId   
+        #id1ä¸æ˜¯AuId   
         else:
                 self.id_or_AuId = 0
                 self.query_as_Id()
@@ -95,7 +95,7 @@ class idAnalysor:
             return False
                 
                 
-#ÊäÈë²éÑ¯Óï¾ä·ÃÎÊapi£¬·µ»ØÎÄ±¾
+#è¾“å…¥æŸ¥è¯¢è¯­å¥è®¿é—®apiï¼Œè¿”å›æ–‡æœ¬
 def  query_api(expr):
         try:
             obj_url = url_head + expr + key_info
@@ -113,21 +113,22 @@ def getPath(id1,id2):
     IA.query_as_AuId()
     IB = idAnalysor(id2,id1)
     IB.query_as_AuId()
-    #µ¥Ìø
+    #å•è·³
     one_hop_path = []
     if id2 in IA.RId_list:
         one_hop_path = [[id1,id2]]
-    #Á½Ìø
+    #ä¸¤è·³
     two_hop_path_list = []
     intersection = IA.id_set & IB.id_set
     for i in intersection:
         two_hop_path_list.append([int(id1),i,int(id2)])
 
     #1+1 or 1+2  or 1+1+1
-    COUNT= 100
+    COUNT= 1000
     three_hop_path_list = []
+
    #if next=Id,AuId
-    if IA.is_id1_ID():
+    if IA.is_id1_ID():#is Id
         next_set = set(IA.RId_list+IA.AuId_list)
     else:
         next_set = set(IA.RId_list)      
@@ -135,63 +136,74 @@ def getPath(id1,id2):
         IA_temp = idAnalysor('%d'%i,id2)
         IA_temp.query_as_AuId()
         if id2 in IA_temp.RId_list:
-            #i+1
+            #1+1
              two_hop_path_list.append([int(id1),i,int(id2)])
+        """
         for j in IA_temp.RId_list:
             IA_temp2 = idAnalysor('%d'%j,id2)
             IA_temp2.query_as_AuId()
             if id2 in IA_temp2.RId_list:
                 #1+1+1
-                three_hop_path_list.append([int(id1),i,j,int(id2)])
+                three_hop_path_list.append([int(id1),i,j,int(id2)])   
         #1+2
+        """
         intersection = IA_temp.id_set & IB.id_set
         for j in intersection:
             three_hop_path_list.append([int(id1),i,j,int(id2)])
-    #if next=Fid,CId,JId
+    #if next=Fid,CId,JId,AfId
     if IA.is_id1_ID():
-        for i in IB.RId_list:
-            IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
-            IB_temp.query_as_AuId()
-            intersection=IA.id_set & IB_temp.id_set
-            for j in intersection:
-                three_hop_path_list.append([int(id1),j,i,int(id2)])   
-    else:
+        if IB.is_id1_ID():#id--id
+            for i in IB.RId_list:
+                IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+                IB_temp.query_as_AuId()
+                intersection=IA.id_set & IB_temp.id_set
+                for j in intersection:
+                    three_hop_path_list.append([int(id1),j,i,int(id2)]) 
+        else:
+            for i in IB.Id_list:#id--AuId
+                IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+                IB_temp.query_as_AuId()
+                intersection=IA.id_set & IB_temp.id_set
+                for j in intersection:
+                    three_hop_path_list.append([int(id1),j,i,int(id2)]) 
+    else:#AuId-AfId-AuId-Id
         for i in IB.AuId_list:
             IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
             IB_temp.query_as_AuId()
             intersection=set(IA.AfId_list) & set(IB_temp.AfId_list)
             for j in intersection:
                 three_hop_path_list.append([int(id1),j,i,int(id2)])  
-    return one_hop_path + two_hop_path_list + three_hop_path_list#·µ»ØpathµÄlist
+    return one_hop_path + two_hop_path_list + three_hop_path_list#è¿”å›pathçš„list
+
 '''    
-#Ps Ñ§½ãµÄÉñ¹¹Ë¼Íò²»¸ÒÉ¾
+#Ps å­¦å§çš„ç¥æ„æ€ä¸‡ä¸æ•¢åˆ 
     if isId1==1 and isId2==1:
         intersection = id_set_A1 & id_set_B1
         two_hop_path_list = []
         for i in intersection:
 	    two_hop_path_list.append([int(id1),i,int(id2)])
-	#ÕâÀï»¹Ó¦¸ÃÓĞ´¦ÀíRIdµÄÓï¾ä
+	#è¿™é‡Œè¿˜åº”è¯¥æœ‰å¤„ç†RIdçš„è¯­å¥
     elif isId1==1 and isId2==0:
 	for i in IA.RId_list:
-	    #²éÑ¯¶ÔÓ¦µÄAuId
+	    #æŸ¥è¯¢å¯¹åº”çš„AuId
 	    pass
     elif isId1==0 and isId2==1:
         for i in IB.RId_list:
-	    #²éÑ¯¶ÔÓ¦µÄAuId
+	    #æŸ¥è¯¢å¯¹åº”çš„AuId
 	    pass
     else:
-        intersection = id_set_A1 & id_set_B1#¾­IdµÄÂ·¾¶
+        intersection = id_set_A1 & id_set_B1#ç»Idçš„è·¯å¾„
         two_hop_path_list = []
         for i in intersection:
 	    two_hop_path_list.append([int(id1),i,int(id2)])
-	intersection = id_set_A2 & id_set_B2#¾­AfIdµÄÂ·¾¶
+	intersection = id_set_A2 & id_set_B2#ç»AfIdçš„è·¯å¾„
 	for i in intersection:
 	    two_hop_path_list.append([int(id1),i,int(id2)])    
     return two_hop_path_list
  '''
 if __name__ == "__main__":
-    id1=2147152072
-    id2=189831743
+    id1=2030985472
+    id2=2133644056
     print("test")
     start_time = datetime.now()
     result = getPath(id1,id2)
