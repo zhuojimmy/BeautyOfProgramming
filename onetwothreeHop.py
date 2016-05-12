@@ -1,28 +1,39 @@
-#-*- coding:utf-8 -*-
+ï»¿#-*- coding:utf-8 -*-
 """
 The given pair of entity identifiers could be 
 [Id, Id], [Id, AA.AuId], [AA.AuId, Id], [AA.AuId, AA.AuId]. 
 Each node of a path should be one of the following identifiers: 
 Id, F.Fid, J.JId, C.CId, AA.AuId, AA.AfId. 
 
-//ÁõÀ¤  0509
-¶ÔÏóÌí¼ÓÁË is_id1_ID()£¬Èç¹ûµ±Ç°id1ÊÇIDÀàĞÍÔòÎªTrue£¬·ñÔòÎªFalse
-ÇëÇó·ÖÎö°¸Àı£º
-Í¬ÑùIdÔÚ²»Í¬Çé¿ö£¨×÷ÎªauidºÍid£©ÏÂ·ÃÎÊµÄ½á¹û
+//åˆ˜å¤  0509
+å¯¹è±¡æ·»åŠ äº† is_id1_ID()ï¼Œå¦‚æœå½“å‰id1æ˜¯IDç±»å‹åˆ™ä¸ºTrueï¼Œå¦åˆ™ä¸ºFalse
+è¯·æ±‚åˆ†ææ¡ˆä¾‹ï¼š
+åŒæ ·Idåœ¨ä¸åŒæƒ…å†µï¼ˆä½œä¸ºauidå’Œidï¼‰ä¸‹è®¿é—®çš„ç»“æœ
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=Id=621499171&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=2140251882)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=Id=621499171&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
 https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=2140251882)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
+åˆ˜å¤ 0512
+è¿™ä¸ªç¼“å­˜åªåœ¨å½“å‰è¿›ç¨‹æœ‰æ•ˆ
+ç¼“å­˜ä¸­å­˜å‚¨çš„æ˜¯idAnalysorå¯¹è±¡çš„ä¸€ä¸ªé›†åˆï¼ŒæŸ¥è¯¢æ·»åŠ åˆ°query_as_auidï¼Œ
+æ·»åŠ åˆ°cacheé‡Œçš„åŠ¨ä½œ:
+    IA.query_as_AuId()
+    cache.add_node(IA)#è¦åŠ ä¸Šè¿™å¥
+å‘ƒå‘ƒå‘ƒç»™ä½ ä»¬æ·»éº»çƒ¦äº†ï¼Œæš‚æ—¶ä¸çŸ¥é“æ€æ ·åœ¨ç±»çš„æ–¹æ³•ä¸­è¿”å›è‡ªå·±è¿™ä¸ªclasså¯¹è±¡
+æ•ˆæœæ˜¯:ä» 180s åˆ° 150s ä¸çŸ¥é“æ˜¯ä¸æ˜¯å› ä¸ºå…¶ä»–å› ç´ 
+æ„Ÿè§‰å¤šçº¿ç¨‹æ‰æ˜¯ç‹é“    
 *//
+
 
 """
 from datetime import datetime
 import urllib
 import json
-import oneHop
+from pathCache import pathCache
 
 url_head = "https://oxfordhk.azure-api.net/academic/v1.0/evaluate?"
 key_info = "&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6"
+cache = pathCache()#+++++++cache
 
 class idAnalysor:
     def __init__(self,id1,id2):
@@ -37,14 +48,15 @@ class idAnalysor:
         self.JId_list = []
         self.FId_list = []
         self.Id_list = []
-#½«´ÓÕâ¸öµã²éÑ¯µ½µÄËùÓĞID»ã×ÜÎªÒ»¸ö¼¯ºÏ  id_set,¼´ËùÓĞÏàÁÚ½Úµãid¼¯ºÏ£¬×÷Îª±¾´Î²éÑ¯×îÖÕ´¦ÀíµÄ²½Öè        
+#å°†ä»è¿™ä¸ªç‚¹æŸ¥è¯¢åˆ°çš„æ‰€æœ‰IDæ±‡æ€»ä¸ºä¸€ä¸ªé›†åˆ  id_set,å³æ‰€æœ‰ç›¸é‚»èŠ‚ç‚¹idé›†åˆï¼Œä½œä¸ºæœ¬æ¬¡æŸ¥è¯¢æœ€ç»ˆå¤„ç†çš„æ­¥éª¤        
     def id_union(self):
-        list_sum = self.AuId_list + self.RId_list +self.CId_list +self.JId_list +self.AfId_list +self.FId_list
+        list_sum = self.AuId_list + self.CId_list +self.JId_list +self.AfId_list +self.FId_list#delete the RId list, it is not a node
 	#print(list_sum)
         self.id_set = set(list_sum)    
 
-    def query_as_Id(self):            
-            expr = "expr=Id=%s&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId"%self.id1
+    def query_as_Id(self):              
+            global COUNT            
+            expr = "expr=Id=%s&count=%d&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId"%(self.id1,COUNT)
             api_return = query_api(expr)
             res_json = json.loads(api_return)
             #return api_return
@@ -60,14 +72,25 @@ class idAnalysor:
                 self.CId_list.append(res_json["entities"][0]["C"]["CId"])
             if "RId" in res_json["entities"][0]:
                 self.RId_list.extend(res_json["entities"][0]["RId"])
-            self.id_union()
-        
+            self.id_union()            
     # url eg:https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=1982462162)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
     def query_as_AuId(self):
-        expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AfId"%self.id1
+        query_cache = cache.query_by_id(self.id1)#
+        if query_cache != -1:
+            self.id_set = query_cache.id_set
+            self.AuId_list = query_cache.AuId_list
+            self.RId_list = query_cache.RId_list
+            self.AfId_list = query_cache.AfId_list
+            self.CId_list = query_cache.CId_list
+            self.JId_list = query_cache.JId_list
+            self.FId_list = query_cache.FId_list
+            self.Id_list = query_cache.Id_list
+            return
+        global COUNT 
+        expr = "expr=composite(AA.AuId=%s)&count=%d&attributes=Id,AA.AfId"%(self.id1,COUNT)
         api_return = query_api(expr)
         res_json = json.loads(api_return)
-        #id1ÊÇAuId
+        #id1æ˜¯AuId
         if len(res_json["entities"])>0:
             self.id_or_AuId = 1
             for i in res_json["entities"]:
@@ -76,10 +99,10 @@ class idAnalysor:
                     for author in i["AA"]:
                         if "AfId" in author:
                             self.AfId_list.append(author["AfId"])
-                        if "AuId" in author:
-                            self.AuId_list.append(author["AuId"]) 
-            self.id_union()  
-        #id1²»ÊÇAuId   
+                       # if "AuId" in author:
+                         #   self.AuId_list.append(author["AuId"]) 
+            self.id_union()
+        #id1ä¸æ˜¯AuId   
         else:
                 self.id_or_AuId = 0
                 self.query_as_Id()
@@ -93,7 +116,7 @@ class idAnalysor:
             return False
                 
                 
-#ÊäÈë²éÑ¯Óï¾ä·ÃÎÊapi£¬·µ»ØÎÄ±¾
+#è¾“å…¥æŸ¥è¯¢è¯­å¥è®¿é—®apiï¼Œè¿”å›æ–‡æœ¬
 def  query_api(expr):
         try:
             obj_url = url_head + expr + key_info
@@ -105,54 +128,77 @@ def  query_api(expr):
             return("Query exception" + str(e))
             
 def getPath(id1,id2):
+    global COUNT 
+    COUNT = 10000
     IA = idAnalysor(id1,id2)
     IA.query_as_AuId()
+    cache.add_node(IA)#
     IB = idAnalysor(id2,id1)
     IB.query_as_AuId()
-    #µ¥Ìø
+    cache.add_node(IB)#
+    #å•è·³
     one_hop_path = []
-    if id2 in IA.id_set or id1 in IB.id_set:
+    if id2 in IA.RId_list:
         one_hop_path = [[id1,id2]]
-    #Á½Ìø
+    #ä¸¤è·³
     two_hop_path_list = []
     intersection = IA.id_set & IB.id_set
     for i in intersection:
         two_hop_path_list.append([int(id1),i,int(id2)])
-    return one_hop_path + two_hop_path_list#·µ»ØpathµÄlist
 
-'''    
-#Ps Ñ§½ãµÄÉñ¹¹Ë¼Íò²»¸ÒÉ¾
-    if isId1==1 and isId2==1:
-        intersection = id_set_A1 & id_set_B1
-        two_hop_path_list = []
-        for i in intersection:
-	    two_hop_path_list.append([int(id1),i,int(id2)])
-	#ÕâÀï»¹Ó¦¸ÃÓĞ´¦ÀíRIdµÄÓï¾ä
-    elif isId1==1 and isId2==0:
-	for i in IA.RId_list:
-	    #²éÑ¯¶ÔÓ¦µÄAuId
-	    pass
-    elif isId1==0 and isId2==1:
-        for i in IB.RId_list:
-	    #²éÑ¯¶ÔÓ¦µÄAuId
-	    pass
+    #1+1 or 1+2  or 1+1+1
+    COUNT= 100
+    three_hop_path_list = []
+   #if next=Id,AuId
+    if IA.is_id1_ID():
+        next_set = set(IA.RId_list+IA.AuId_list)
     else:
-        intersection = id_set_A1 & id_set_B1#¾­IdµÄÂ·¾¶
-        two_hop_path_list = []
-        for i in intersection:
-	    two_hop_path_list.append([int(id1),i,int(id2)])
-	intersection = id_set_A2 & id_set_B2#¾­AfIdµÄÂ·¾¶
-	for i in intersection:
-	    two_hop_path_list.append([int(id1),i,int(id2)])    
-    return two_hop_path_list
- '''
+        next_set = set(IA.RId_list)      
+    for i in next_set:
+        IA_temp = idAnalysor('%d'%i,id2)
+        IA_temp.query_as_AuId()
+        cache.add_node(IA_temp)
+        if id2 in IA_temp.RId_list:
+            #i+1
+             two_hop_path_list.append([int(id1),i,int(id2)])
+        for j in IA_temp.RId_list:
+            IA_temp2 = idAnalysor('%d'%j,id2)
+            IA_temp2.query_as_AuId()
+            cache.add_node(IA_temp2)
+            if id2 in IA_temp2.RId_list:
+                #1+1+1
+                three_hop_path_list.append([int(id1),i,j,int(id2)])
+        #1+2
+        intersection = IA_temp.id_set & IB.id_set
+        for j in intersection:
+            three_hop_path_list.append([int(id1),i,j,int(id2)])
+    #if next=Fid,CId,JId
+    if IA.is_id1_ID():
+        for i in IB.RId_list:
+            IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+            IB_temp.query_as_AuId()
+            cache.add_node(IB_temp)
+            intersection=IA.id_set & IB_temp.id_set
+            for j in intersection:
+                three_hop_path_list.append([int(id1),j,i,int(id2)])   
+    else:
+        for i in IB.AuId_list:
+            IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+            IB_temp.query_as_AuId()
+            cache.add_node(IB_temp)
+            intersection=set(IA.AfId_list) & set(IB_temp.AfId_list)
+            for j in intersection:
+                three_hop_path_list.append([int(id1),j,i,int(id2)])  
+    return one_hop_path + two_hop_path_list + three_hop_path_list#è¿”å›pathçš„list
+
 if __name__ == "__main__":
-    id1=2151561903
-    id2=2015720094
-    print("twoHop test")
+    id1=2147152072
+    id2=189831743
+    print("test")
     start_time = datetime.now()
     result = getPath(id1,id2)
     print(result)
     delta = datetime.now() - start_time
     print("\nCost time: %s ms"%(str(delta.microseconds/1000)))
+    print("\nans count:%d")%len(result)
     
