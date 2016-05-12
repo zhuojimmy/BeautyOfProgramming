@@ -19,8 +19,3 @@ class pathCache:
             return -1 
             
             
-            
-if __name__ == "__main__":
-    cache = pathCache()
-    cache.add_node(1,[1,2,3,4,5])
-    print cache.query_by_ID(1)
