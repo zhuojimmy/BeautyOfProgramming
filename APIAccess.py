@@ -24,8 +24,8 @@ def QueryById(Id):
         id_RId_list = []
         id_AuId_list = []
         id_FId_list = []
-        id_CId = 0000
-        id_JId = 0000
+        id_CId = 0
+        id_JId = 0
         if "RId" in res_json["entities"][0]:
             id_RId_list.extend(res_json["entities"][0]["RId"])
         if "AA" in res_json["entities"][0]:

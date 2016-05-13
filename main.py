@@ -8,7 +8,7 @@ import tornado.options
 import tornado.web
 import findPath
 from tornado.options import define, options
-define("port", default=8008, help="run on the given port", type=int)
+define("port", default=80, help="run on the given port", type=int)
 
 class IDHandler(tornado.web.RequestHandler):
     def get(self):
