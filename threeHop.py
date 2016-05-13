@@ -1,9 +1,5 @@
 #Zhuo Qinzheng 0511
-from oneHop import QueryById, QueryIdByAuId, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, isId
-from zCache import zCache
-def three_hop_path(id1,id2):
-    #entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
-    three_hop_path = []
+cccc
     zcache = zCache()
     if(isId(id1)):
         '''
@@ -101,7 +97,7 @@ def three_hop_path(id1,id2):
             Id_list=QueryIdByCId(CIdById)
             if(int(id2) in Id_list):
                 three_hop_path.append([int(id1),tempId,CIdById,int(id2)])  
-        AfIdByAuId_list=QueryAfIdByAuId(id2)
+        AfIdByAuId_list=QueryAfIdByAuId(id1)
         print AfIdByAuId_list
         for tempAfId in AfIdByAuId_list:
             AuIdByAfId_list=QueryAuIdByAfId(tempAfId)
