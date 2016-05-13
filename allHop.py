@@ -1,4 +1,4 @@
-from APIAccess import QueryById, QueryIdByAuId, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, isId
+from APIAccess import QueryById, QueryIdByAuId, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, isId, QueryRIdByAuId, QueryRIdByFId, QueryRIdByCId, QueryRIdByJId
 from zCache import zCache
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
@@ -41,8 +41,27 @@ def hop_path(id1,id2):
 				for AuFCJId_2 in AuFCJId_list_n_2:
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
 		if isId(id2):
-			#Id-(AuId,FId,CId,JId)-Id-Id
+			#Id-(AuId,FId,CId,JId)-Id-Id  前方高能!
 			print "Id-(AuId,FId,CId,JId)-Id-Id"
+			for AuId_3 in Entity_3[1]:
+				Id_and_RId_List_by_AuId=QueryRIdByAuId(AuId_3)
+				for Id_and_RId_by_AuId in Id_and_RId_List_by_AuId:
+					if int(id2) in Id_list_by_AuId[1]:
+						hop_path.append([int(id1),AuId_3,Id_and_RId_by_AuId[0],int(id2)])
+			for FId_1 in Entity_3[2]:
+				Id_and_RId_List_by_FId=QueryRIdByFId(FId_1)
+				for Id_and_RId_by_FId in Id_and_RId_List_by_FId:
+					if int(id2) in Id_and_RId_by_FId[1]:
+						hop_path.append([int(id1),FId_1,Id_and_RId_by_FId[0],int(id2)])
+			Id_and_RId_List_by_JId=QueryRIdByJId(Entity_3[3])
+			for Id_and_RId_by_JId in Id_and_RId_List_by_JId:
+				if int(id2) in Id_and_RId_by_JId[1]:
+					hop_path.append([int(id1),FId_1,Id_and_RId_by_JId[0],int(id2)])
+			Id_and_RId_List_by_CId=QueryRIdByCId(Entity_3[4])
+			for Id_and_RId_by_CId in Id_and_RId_List_by_CId:
+				if int(id2) in Id_and_RId_by_CId[1]:
+					hop_path.append([int(id1),FId_1,Id_and_RId_by_CId[0],int(id2)])				
+
 			#Id-(AuId,FId,CId,JId)-Id
 			Entity_6=QueryById(id2)
 			AuFCJId_list_3=Entity_6[1]+Entity_6[2]
