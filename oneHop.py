@@ -81,7 +81,7 @@ def QueryAuIdByAfId(AfId):
     return AuId_list
 
 def QueryIdByFId(FId):
-    expr = "expr=composite(F.FId=%s)&count=10000&attributes=Id" % FId
+    expr = "expr=composite(F.FId=%s)&count=1000&attributes=Id" % FId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
@@ -91,7 +91,7 @@ def QueryIdByFId(FId):
     return Id_list
 
 def QueryIdByCId(CId):
-    expr = "expr=composite(C.CId=%s)&count=10000&attributes=Id" % CId
+    expr = "expr=composite(C.CId=%s)&count=1000&attributes=Id" % CId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
@@ -101,7 +101,7 @@ def QueryIdByCId(CId):
     return Id_list
 
 def QueryIdByJId(JId):
-    expr = "expr=composite(J.JId=%s)&count=10000&attributes=Id" % JId
+    expr = "expr=composite(J.JId=%s)&count=1000&attributes=Id" % JId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
