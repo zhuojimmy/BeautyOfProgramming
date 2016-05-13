@@ -1,4 +1,4 @@
-﻿#-*- coding:utf-8 -*-
+#-*- coding:utf-8 -*-
 """
 The given pair of entity identifiers could be 
 [Id, Id], [Id, AA.AuId], [AA.AuId, Id], [AA.AuId, AA.AuId]. 
@@ -19,6 +19,10 @@ https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=214
 你们在用的时候应该不用改代码
 效果是:从 180s 到 150s 不知道是不是因为其他因素
 感觉多线程才是王道    
+ksl 0513
+mend Id->AuId road
+mend AfId_list bug
+
 *//
 
 
@@ -47,7 +51,7 @@ class idAnalysor:
         self.Id_list = []
 #将从这个点查询到的所有ID汇总为一个集合  id_set,即所有相邻节点id集合，作为本次查询最终处理的步骤        
     def id_union(self):
-        list_sum = self.AuId_list + self.CId_list +self.JId_list +self.AfId_list +self.FId_list#delete the RId list, it is not a node
+        list_sum =self.Id_list + self.AuId_list + self.AfId_list+self.CId_list +self.JId_list +self.FId_list#delete the RId list, it is not a node
 	#print(list_sum)
         self.id_set = set(list_sum)    
 
@@ -69,7 +73,9 @@ class idAnalysor:
                 self.CId_list.append(res_json["entities"][0]["C"]["CId"])
             if "RId" in res_json["entities"][0]:
                 self.RId_list.extend(res_json["entities"][0]["RId"])
-            self.id_union()            
+            self.id_union()     
+            
+                   
     # url eg:https://oxfordhk.azure-api.net/academic/v1.0/evaluate?expr=composite(AA.AuId=1982462162)&count=10000&attributes=Id,AA.AuId,AA.AfId,C.CId&subscription-key=f7cc29509a8443c5b3a5e56b0e38b5a6
     def query_as_AuId(self):
         query_cache = cache.query_by_id(self.id1)#查询返回了一个IDanalysor对象
@@ -93,9 +99,10 @@ class idAnalysor:
             for i in res_json["entities"]:
                 self.Id_list.append(i['Id'])               
                 if "AA" in i:
-                    for author in i["AA"]:
-                        if "AfId" in author:
-                            self.AfId_list.append(author["AfId"])
+                    for j in i["AA"]:
+                        if("AuId" in j):
+                            if(self.id1==j["AuId"] and "AfId" in j):
+                                self.AfId_list.append(j["AfId"])
                        # if "AuId" in author:
                          #   self.AuId_list.append(author["AuId"]) 
             self.id_union()
@@ -116,8 +123,43 @@ class idAnalysor:
             return True
         else:
             return False
-                
-                
+
+    def query_as_RId(self): 
+        expr = "expr=RId=%s&count=%d&attributes=Id"%(self.id1,COUNT)
+        api_return = query_api(expr)
+        res_json = json.loads(api_return)
+        if len(res_json["entities"])>0:
+            for i in res_json["entities"]:
+                self.Id_list.append(i['Id'])
+            """
+      def query_as_FId(self):
+        expr = "expr=composite(F.FId=%s)&count=COUNT&attributes=Id" %(self.id1,COUNT)
+        api_return = query_api(expr)
+        res_json = json.loads(api_return)      
+        if len(res_json["entities"])>0:
+            for i in res_json["entities"]:
+                self.Id_list.append(i['Id'])
+            cache.add_node(self)
+    def query_as_CId(self):
+        expr = "expr=composite(C.CId=%s)&count=COUNT&attributes=Id"%(self.id1,COUNT)
+        api_return = query_api(expr)
+        res_json = json.loads(api_return)
+        Id_list = []
+        if "entities" in res_json:
+            for i in res_json["entities"]:
+                self.Id_list.append(i['Id'])
+            cache.add_node(self)   
+           
+    def query_as_JId(self):
+        expr = "expr=composite(J.JId=%s)&count=COUNT&attributes=Id"%(self.id1,COUNT)
+        api_return = query_api(expr)
+        res_json = json.loads(api_return)
+        Id_list = []
+        if "entities" in res_json:
+            for i in res_json["entities"]:
+                self.Id_list.append(i['Id'])       
+        cache.add_node(self)        
+         """
 #输入查询语句访问api，返回文本
 def  query_api(expr):
         try:
@@ -140,6 +182,8 @@ def getPath(id1,id2):
     one_hop_path = []
     if id2 in IA.RId_list:
         one_hop_path = [[id1,id2]]
+    elif id2 in IA.Id_list or id1 in IB.Id_list:
+        one_hop_path = [[id1,id2]]
     #两跳
     two_hop_path_list = []
     intersection = IA.id_set & IB.id_set
@@ -149,36 +193,51 @@ def getPath(id1,id2):
     #1+1 or 1+2  or 1+1+1
     COUNT= 100
     three_hop_path_list = []
+
    #if next=Id,AuId
-    if IA.is_id1_ID():
+    if IA.is_id1_ID():#is Id
         next_set = set(IA.RId_list+IA.AuId_list)
     else:
-        next_set = set(IA.RId_list)      
+        next_set = set(IA.Id_list)      
     for i in next_set:
         IA_temp = idAnalysor('%d'%i,id2)
         IA_temp.query_as_AuId()
-        if id2 in IA_temp.RId_list:
-            #i+1
+        #1+1
+        if id2 in IA_temp.RId_list:       
              two_hop_path_list.append([int(id1),i,int(id2)])
+        elif id2 in IA_temp.Id_list or id1 in IB.Id_list:
+             two_hop_path_list.append([int(id1),i,int(id2)])
+
         for j in IA_temp.RId_list:
             IA_temp2 = idAnalysor('%d'%j,id2)
             IA_temp2.query_as_AuId()
+            #1+1+1
             if id2 in IA_temp2.RId_list:
-                #1+1+1
+                three_hop_path_list.append([int(id1),i,j,int(id2)])
+            elif id2 in IA_temp2.Id_list or id1 in IB.Id_list:
                 three_hop_path_list.append([int(id1),i,j,int(id2)])
         #1+2
         intersection = IA_temp.id_set & IB.id_set
         for j in intersection:
             three_hop_path_list.append([int(id1),i,j,int(id2)])
-    #if next=Fid,CId,JId
+    #if next=Fid,CId,JId,AfId
     if IA.is_id1_ID():
-        for i in IB.RId_list:
-            IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
-            IB_temp.query_as_AuId()
-            intersection=IA.id_set & IB_temp.id_set
-            for j in intersection:
-                three_hop_path_list.append([int(id1),j,i,int(id2)])   
-    else:
+        if IB.is_id1_ID():#id--id
+            IB.query_as_RId()
+            for i in IB.Id_list:
+                IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+                IB_temp.query_as_AuId()
+                intersection=IA.id_set & IB_temp.id_set
+                for j in intersection:
+                    three_hop_path_list.append([int(id1),j,i,int(id2)]) 
+            else:
+                for i in IB.Id_list:#id--AuId
+                    IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
+                    IB_temp.query_as_AuId()
+                    intersection=IA.id_set & IB_temp.id_set
+                    for j in intersection:
+                        three_hop_path_list.append([int(id1),j,i,int(id2)]) 
+    else:#AuId-AfId-AuId-Id
         for i in IB.AuId_list:
             IB_temp=idAnalysor('%d'%i,id1) #search in reverse direction
             IB_temp.query_as_AuId()
@@ -188,12 +247,12 @@ def getPath(id1,id2):
     return one_hop_path + two_hop_path_list + three_hop_path_list#返回path的list
 
 if __name__ == "__main__":
-    id1=2147152072
-    id2=189831743
+    id1=2332023333
+    id2=2310280492
     print("test")
     start_time = datetime.now()
     result = getPath(id1,id2)
-    #print(result)
+    print(result)
     #print (str(cache.node_set))
     delta = datetime.now() - start_time
     print("\nCost time: %s s"%(str(delta.microseconds/1000)))
