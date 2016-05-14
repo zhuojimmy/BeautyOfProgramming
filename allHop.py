@@ -1,4 +1,4 @@
-from APIAccess import QueryById, QueryIdByAuId, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, isId, QueryRIdByAuId, QueryRIdByFId, QueryRIdByCId, QueryRIdByJId
+from APIAccess import QueryById, QueryIdByAuId, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, QueryIdByRId, isId
 from zCache import zCache
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
@@ -41,27 +41,19 @@ def hop_path(id1,id2):
 				for AuFCJId_2 in AuFCJId_list_n_2:
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
 		if isId(id2):
-			#Id-(AuId,FId,CId,JId)-Id-Id  前方高能!
+			#Id-(AuId,FId,CId,JId)-Id-Id
 			print "Id-(AuId,FId,CId,JId)-Id-Id"
-			for AuId_3 in Entity_3[1]:
-				Id_and_RId_List_by_AuId=QueryRIdByAuId(AuId_3)
-				for Id_and_RId_by_AuId in Id_and_RId_List_by_AuId:
-					if int(id2) in Id_list_by_AuId[1]:
-						hop_path.append([int(id1),AuId_3,Id_and_RId_by_AuId[0],int(id2)])
-			for FId_1 in Entity_3[2]:
-				Id_and_RId_List_by_FId=QueryRIdByFId(FId_1)
-				for Id_and_RId_by_FId in Id_and_RId_List_by_FId:
-					if int(id2) in Id_and_RId_by_FId[1]:
-						hop_path.append([int(id1),FId_1,Id_and_RId_by_FId[0],int(id2)])
-			Id_and_RId_List_by_JId=QueryRIdByJId(Entity_3[3])
-			for Id_and_RId_by_JId in Id_and_RId_List_by_JId:
-				if int(id2) in Id_and_RId_by_JId[1]:
-					hop_path.append([int(id1),FId_1,Id_and_RId_by_JId[0],int(id2)])
-			Id_and_RId_List_by_CId=QueryRIdByCId(Entity_3[4])
-			for Id_and_RId_by_CId in Id_and_RId_List_by_CId:
-				if int(id2) in Id_and_RId_by_CId[1]:
-					hop_path.append([int(id1),FId_1,Id_and_RId_by_CId[0],int(id2)])				
-
+			Id_list_t=QueryIdByRId(id2)
+			for Id_t in Id_list_t:
+				Entity_t=QueryById(Id_t)
+				AuFCJId_list_t=Entity_t[1]+Entity_t[2]
+				if(Entity_t[3]!=0):
+					AuFCJId_list_t.append(Entity_t[3])
+				if(Entity_t[4]!=0):
+					AuFCJId_list_t.append(Entity_t[4])
+				AuFCJId_list_n_t=list(set(AuFCJId_list_5).intersection(set(AuFCJId_list_t)))
+				for AuFCJId_t in AuFCJId_list_n_t:
+						hop_path.append([int(id1),AuFCJId_t,Id_t,int(id2)])
 			#Id-(AuId,FId,CId,JId)-Id
 			Entity_6=QueryById(id2)
 			AuFCJId_list_3=Entity_6[1]+Entity_6[2]
