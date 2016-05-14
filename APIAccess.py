@@ -65,62 +65,6 @@ def QueryIdByAuId(AuId):
             Id_list.append(i["Id"])
     return Id_list
 
-def QueryRIdByAuId(AuId):
-    #result=[[Id,[RId_list]],[],...[]]
-    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id" % AuId
-    api_return = query_api(expr)
-    res_json = json.loads(api_return)
-    result = []
-    if "entities" in res_json:
-        for i in res_json["entities"]:
-            if "RId" in res_json["entities"][0]:
-                RId_list_by_AuId.extend(i["RId"])
-            Entity_by_AuId=[i["Id"],RId_list_by_AuId]
-            result.append(Entity_by_AuId)
-    return result
-
-def QueryRIdByFId(FId):
-    #result=[[Id,[RId_list]],[],...[]]
-    expr = "expr=composite(F.FId=%s)&count=10000&attributes=Id" % FId
-    api_return = query_api(expr)
-    res_json = json.loads(api_return)
-    result = []
-    if "entities" in res_json:
-        for i in res_json["entities"]:
-            if "RId" in res_json["entities"][0]:
-                RId_list_by_AuId.extend(i["RId"])
-            Entity_by_AuId=[i["Id"],RId_list_by_AuId]
-            result.append(Entity_by_AuId)
-    return result
-
-def QueryRIdByCId(CId):
-    #result=[[Id,[RId_list]],[],...[]]
-    expr = "expr=composite(C.CId=%s)&count=10000&attributes=Id" % CId
-    api_return = query_api(expr)
-    res_json = json.loads(api_return)
-    result = []
-    if "entities" in res_json:
-        for i in res_json["entities"]:
-            if "RId" in res_json["entities"][0]:
-                RId_list_by_AuId.extend(i["RId"])
-            Entity_by_AuId=[i["Id"],RId_list_by_AuId]
-            result.append(Entity_by_AuId)
-    return result
-
-def QueryRIdByJId(JId):
-    #result=[[Id,[RId_list]],[],...[]]
-    expr = "expr=composite(J.JId=%s)&count=10000&attributes=Id" % JId
-    api_return = query_api(expr)
-    res_json = json.loads(api_return)
-    result = []
-    if "entities" in res_json:
-        for i in res_json["entities"]:
-            if "RId" in res_json["entities"][0]:
-                RId_list_by_AuId.extend(i["RId"])
-            Entity_by_AuId=[i["Id"],RId_list_by_AuId]
-            result.append(Entity_by_AuId)
-    return result
-
 def QueryAuIdByAfId(AfId):
     expr = "expr=composite(AA.AfId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId" % AfId
     api_return = query_api(expr)
@@ -158,6 +102,16 @@ def QueryIdByCId(CId):
 
 def QueryIdByJId(JId):
     expr = "expr=composite(J.JId=%s)&count=1000&attributes=Id" % JId
+    api_return = query_api(expr)
+    res_json = json.loads(api_return)
+    Id_list = []
+    if "entities" in res_json:
+        for i in res_json["entities"]:
+            Id_list.append(i['Id'])
+    return Id_list
+
+def QueryIdByRId(RId):
+    expr = "expr=RId=%s&count=1000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % RId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
