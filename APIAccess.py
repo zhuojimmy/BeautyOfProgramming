@@ -64,6 +64,30 @@ def QueryIdByAuId(AuId):
         for i in res_json["entities"]:
             Id_list.append(i["Id"])
     return Id_list
+    
+def QueryIdByAuId2(AuId):
+    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % AuId
+    api_return = query_api(expr)
+    res_json = json.loads(api_return)
+    entity = []
+    if "entities" in res_json:
+        for i in res_json["entities"]:
+            id_AuId_list = []
+            id_FId_list=[]
+            id_CId = 0
+            id_JId = 0
+            if "AA" in i:
+                for j in i["AA"]:
+                   id_AuId_list.append(j['AuId'])
+            if "F" in i:
+                for j in i["F"]:
+                   id_FId_list.append(j["FId"])
+            if "J" in i:
+                id_JId=i["J"]["JId"]
+            if "C" in i:
+                id_CId=i["C"]["CId"]
+            entity.append([i['Id'], id_AuId_list, id_FId_list, id_JId, id_CId])
+    return entity
 
 def QueryAuIdByAfId(AfId):
     expr = "expr=composite(AA.AfId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId" % AfId
@@ -114,11 +138,25 @@ def QueryIdByRId(RId):
     expr = "expr=RId=%s&count=1000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % RId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
-    Id_list = []
+    entity = []
     if "entities" in res_json:
         for i in res_json["entities"]:
-            Id_list.append(i['Id'])
-    return Id_list
+            id_AuId_list = []
+            id_FId_list=[]
+            id_CId = 0
+            id_JId = 0
+            if "AA" in i:
+                for j in i["AA"]:
+            	   id_AuId_list.append(j['AuId'])
+            if "F" in i:
+                for j in i["F"]:
+            	   id_FId_list.append(j["FId"])
+            if "J" in i:
+                id_JId=i["J"]["JId"]
+            if "C" in i:
+                id_CId=i["C"]["CId"]
+            entity.append([i['Id'], id_AuId_list, id_FId_list, id_JId, id_CId])
+    return entity
 
 def isId(id):
     expr = "expr=Id=%s&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % id
