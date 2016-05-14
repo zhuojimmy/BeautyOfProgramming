@@ -42,18 +42,16 @@ def hop_path(id1,id2):
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
 		if isId(id2):
 			#Id-(AuId,FId,CId,JId)-Id-Id
-			print "Id-(AuId,FId,CId,JId)-Id-Id"
-			Id_list_t=QueryIdByRId(id2)
-			for Id_t in Id_list_t:
-				Entity_t=QueryById(Id_t)
-				AuFCJId_list_t=Entity_t[1]+Entity_t[2]
-				if(Entity_t[3]!=0):
-					AuFCJId_list_t.append(Entity_t[3])
-				if(Entity_t[4]!=0):
-					AuFCJId_list_t.append(Entity_t[4])
+			Entity_t=QueryIdByRId(id2)
+			for i in Entity_t:
+				AuFCJId_list_t=i[1]+i[2]
+				if(i[3]!=0):
+					AuFCJId_list_t.append(i[3])
+				if(i[4]!=0):
+					AuFCJId_list_t.append(i[4])
 				AuFCJId_list_n_t=list(set(AuFCJId_list_5).intersection(set(AuFCJId_list_t)))
 				for AuFCJId_t in AuFCJId_list_n_t:
-						hop_path.append([int(id1),AuFCJId_t,Id_t,int(id2)])
+					hop_path.append([int(id1), AuFCJId_t,i[0],int(id2)])
 			#Id-(AuId,FId,CId,JId)-Id
 			Entity_6=QueryById(id2)
 			AuFCJId_list_3=Entity_6[1]+Entity_6[2]
@@ -74,17 +72,16 @@ def hop_path(id1,id2):
 				for AfId_4 in AfId_list_n_3:
 						hop_path.append([int(id1),AuId_2,AfId_4,int(id2)])
 			#Id-(AuId,FId,CId,JId)-Id-AuId
-			Id_list_4=QueryIdByAuId(id2)
-			for Id_6 in Id_list_4:
-				Entity_7=QueryById(Id_6)
-				AuFCJId_list_6=Entity_7[1]+Entity_7[2]
-				if(Entity_7[3]!=0):
-					AuFCJId_list_6.append(Entity_7[3])
-				if(Entity_7[4]!=0):
-					AuFCJId_list_6.append(Entity_7[4])
-				AuFCJId_list_n_3=list(set(AuFCJId_list_5).intersection(set(AuFCJId_list_6)))
-				for AuFCJId_3 in AuFCJId_list_n_3:
-						hop_path.append([int(id1),AuFCJId_3,Id_6,int(id2)])
+			Entity_7=QueryIdByAuId2(id2)
+			for i in Entity_7:
+				AuFCJId_list_t=i[1]+i[2]
+				if(i[3]!=0):
+					AuFCJId_list_t.append(i[3])
+				if(i[4]!=0):
+					AuFCJId_list_t.append(i[4])
+				AuFCJId_list_n_t=list(set(AuFCJId_list_5).intersection(set(AuFCJId_list_t)))
+				for AuFCJId_t in AuFCJId_list_n_t:
+					hop_path.append([int(id1), AuFCJId_t,i[0],int(id2)])
 	else:
 		#AuId-AfId-
 		AfId_list_1=QueryAfIdByAuId(id1)
