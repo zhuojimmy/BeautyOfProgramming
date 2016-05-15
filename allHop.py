@@ -1,5 +1,4 @@
-from APIAccess import QueryById, QueryIdByAuId,QueryIdByAuId2, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, QueryIdByRId, isId
-from zCache import zCache
+from APIAccess import QueryById, QueryIdByAuId,QueryIdByAuId2, QueryAfIdByAuId, QueryIdByRId, isId
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
 	hop_path = []
@@ -12,22 +11,26 @@ def hop_path(id1,id2):
 			AuFCJId_list_5.append(Entity_3[3])
 		if(Entity_3[4]!=0):
 			AuFCJId_list_5.append(Entity_3[4])
+		'''
 		#Id-Id  Id-AuId
 		if int(id2) in Entity_3[0] or int(id2) in Entity_3[1]:
 			hop_path.append([int(id1),int(id2)])
+		'''
 		#Id-Id-
 		for Id_4 in Entity_3[0]:
 			Entity_4=QueryById(Id_4)
 			#Id-Id-Id  Id-Id-AuId
 			if int(id2) in Entity_4[0] or int(id2) in Entity_4[1]:
 					hop_path.append([int(id1),Id_4,int(id2)])
+			'''
 			#Id-Id-Id-(Id,AuId)
 			for Id_5 in Entity_4[0]:
 				Entity_5=QueryById(Id_5)
 				if int(id2) in Entity_5[0] or int(id2) in Entity_5[1]:
 					hop_path.append([int(id1),Id_4,Id_5,int(id2)])
-			#Id-Id-(AuId,FId,CId,JId)-Id
+			'''
 			if isId(id2):
+				#Id-Id-(AuId,FId,CId,JId)-Id
 				Entity_6=QueryById(id2)
 				AuFCJId_list_3=Entity_6[1]+Entity_6[2]
 				if(Entity_6[3]!=0):
@@ -42,7 +45,13 @@ def hop_path(id1,id2):
 				AuFCJId_list_n_2=list(set(AuFCJId_list_3).intersection(set(AuFCJId_list_4)))
 				for AuFCJId_2 in AuFCJId_list_n_2:
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
+			
 		if is_id2_Id:
+			#Id-Id
+			if int(id2) in Entity_3[0]:
+				hop_path.append([int(id1),int(id2)])
+			#Id-Id-Id-Id
+
 			#Id-(AuId,FId,CId,JId)-Id-Id
 			Entity_t=QueryIdByRId(id2)
 			for i in Entity_t:
@@ -66,16 +75,31 @@ def hop_path(id1,id2):
 					hop_path.append([int(id1),AuFCJId_4,int(id2)])		
 
 		else:
+			Entity_7=QueryIdByAuId2(id2)
+			AfId_list_4=QueryAfIdByAuId(id2)
+			'''
+			#Id-Id-AuId
+			if int(id2) in Entity_4[1]:
+				hop_path.append([int(id1),Id_4,int(id2)])
+			'''
 			#Id-AuId-AfId-AuId
 			for AuId_2 in Entity_3[1]:
-				AfId_list_4=QueryAfIdByAuId(id2)
 				AfId_list_5=QueryAfIdByAuId(AuId_2)
 				AfId_list_n_3=list(set(AfId_list_4).intersection(set(AfId_list_5)))
 				for AfId_4 in AfId_list_n_3:
 						hop_path.append([int(id1),AuId_2,AfId_4,int(id2)])
-			#Id-(AuId,FId,CId,JId)-Id-AuId
-			Entity_7=QueryIdByAuId2(id2)
 			for i in Entity_7:
+				for Id_6 in Entity_3[0]:
+					#Id-Id-AuId
+					if Id_6==i[0]
+						hop_path.append([int(id1),i[0],int(id2)])
+					#Id-Id-Id-AuId
+					Entity_8=QueryById(Id_6)
+					if i[0] in Entity_8[0]
+						hop_path.append([int(id1),Id_6,i[0],int(id2)])
+				
+				#Id-(AuId,FId,CId,JId)-Id-AuId
+			
 				AuFCJId_list_t=i[1]+i[2]
 				if(i[3]!=0):
 					AuFCJId_list_t.append(i[3])
