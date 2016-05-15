@@ -1,5 +1,4 @@
 from APIAccess import QueryById, QueryIdByAuId,QueryIdByAuId2, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, QueryIdByRId, isId
-from zCache import zCache
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
 	hop_path = []
