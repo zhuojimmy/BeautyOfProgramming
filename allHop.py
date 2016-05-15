@@ -1,5 +1,4 @@
 from APIAccess import QueryById, QueryIdByAuId,QueryIdByAuId2, QueryAfIdByAuId, QueryAuIdByAfId, QueryIdByFId, QueryIdByCId, QueryIdByJId, QueryIdByRId, isId
-from zCache import zCache
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
 	hop_path = []
@@ -21,13 +20,15 @@ def hop_path(id1,id2):
 			#Id-Id-Id  Id-Id-AuId
 			if int(id2) in Entity_4[0] or int(id2) in Entity_4[1]:
 					hop_path.append([int(id1),Id_4,int(id2)])
+			'''
 			#Id-Id-Id-(Id,AuId)
 			for Id_5 in Entity_4[0]:
 				Entity_5=QueryById(Id_5)
 				if int(id2) in Entity_5[0] or int(id2) in Entity_5[1]:
 					hop_path.append([int(id1),Id_4,Id_5,int(id2)])
-			#Id-Id-(AuId,FId,CId,JId)-Id
+			'''			
 			if isId(id2):
+				#Id-Id-(AuId,FId,CId,JId)-Id
 				Entity_6=QueryById(id2)
 				AuFCJId_list_3=Entity_6[1]+Entity_6[2]
 				if(Entity_6[3]!=0):
@@ -42,6 +43,18 @@ def hop_path(id1,id2):
 				AuFCJId_list_n_2=list(set(AuFCJId_list_3).intersection(set(AuFCJId_list_4)))
 				for AuFCJId_2 in AuFCJId_list_n_2:
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
+				#Id-Id-Id-Id
+				Entity_8=QueryIdByRId(id2)
+				for i in Entity_8:
+					if i[0] in Entity_4[0]:
+						hop_path.append([int(id1),Id_4,i[0],int(id2)])	
+			else:
+				#Id-Id-Id-AuId
+				Id_list_4=QueryIdByAuId(id2)
+				Id_list_n_2=list(set(Entity_4[0]).intersection(set(Id_list_4)))
+				for Id_5 in Id_list_n_2:
+					hop_path.append([int(id1),Id_4,Id_5,int(id2)])	
+
 		if is_id2_Id:
 			#Id-(AuId,FId,CId,JId)-Id-Id
 			Entity_t=QueryIdByRId(id2)
