@@ -3,9 +3,7 @@ from zCache import zCache
 def hop_path(id1,id2):
 	#entity = [ id_RId_list, id_AuId_list, id_FId_list, id_JId, id_CId]
 	hop_path = []
-	is_id1_Id=isId(id1)
-	is_id2_Id=isId(id2)
-	if is_id1_Id:
+	if isId(id1):
 		Entity_3=QueryById(id1)
 		AuFCJId_list_5=Entity_3[1]+Entity_3[2]
 		if(Entity_3[3]!=0):
@@ -42,7 +40,7 @@ def hop_path(id1,id2):
 				AuFCJId_list_n_2=list(set(AuFCJId_list_3).intersection(set(AuFCJId_list_4)))
 				for AuFCJId_2 in AuFCJId_list_n_2:
 					hop_path.append([int(id1),Id_4,AuFCJId_2,int(id2)])	
-		if is_id2_Id:
+		if isId(id2):
 			#Id-(AuId,FId,CId,JId)-Id-Id
 			Entity_t=QueryIdByRId(id2)
 			for i in Entity_t:
@@ -87,7 +85,7 @@ def hop_path(id1,id2):
 	else:
 		#AuId-AfId-
 		AfId_list_1=QueryAfIdByAuId(id1)
-		if is_id2_Id:
+		if isId(id2):
 			AuId_list_1=QueryById(id2)[1]
 			for AuId_1 in AuId_list_1:
 				AfId_list_2=QueryAfIdByAuId(AuId_1)
@@ -107,7 +105,7 @@ def hop_path(id1,id2):
 			if int(id2)==Id_1:
 				hop_path.append([int(id1),int(id2)])
 			Entity_1=QueryById(Id_1)
-			if is_id2_Id:
+			if isId(id2):
 				for Id_3 in Entity_1[0]:
 					#AuId-Id-Id
 					if int(id2)==Id_3:
