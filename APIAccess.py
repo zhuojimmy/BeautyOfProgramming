@@ -16,7 +16,7 @@ def  query_api(expr):
             return("Query exception" + str(e))
 
 def QueryById(Id):
-    expr = "expr=Id=%s&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % Id
+    expr = "expr=Id=%s&count=1&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % Id
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     entity = []
@@ -42,7 +42,7 @@ def QueryById(Id):
     return entity
 
 def QueryAfIdByAuId(AuId):
-    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId" % AuId
+    expr = "expr=composite(AA.AuId=%s)&count=100&attributes=Id,AA.AuId,AA.AfId" % AuId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     AfId_list = []
@@ -56,7 +56,7 @@ def QueryAfIdByAuId(AuId):
     return AfId_list
 
 def QueryIdByAuId(AuId):
-    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id" % AuId
+    expr = "expr=composite(AA.AuId=%s)&count=100&attributes=Id" % AuId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     Id_list = []
@@ -66,7 +66,7 @@ def QueryIdByAuId(AuId):
     return Id_list
     
 def QueryIdByAuId2(AuId):
-    expr = "expr=composite(AA.AuId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % AuId
+    expr = "expr=composite(AA.AuId=%s)&count=100&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % AuId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     entity = []
@@ -90,7 +90,7 @@ def QueryIdByAuId2(AuId):
     return entity
 
 def QueryAuIdByAfId(AfId):
-    expr = "expr=composite(AA.AfId=%s)&count=10000&attributes=Id,AA.AuId,AA.AfId" % AfId
+    expr = "expr=composite(AA.AfId=%s)&count=1000&attributes=Id,AA.AuId,AA.AfId" % AfId
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     AuId_list = []
@@ -159,7 +159,7 @@ def QueryIdByRId(RId):
     return entity
 
 def isId(id):
-    expr = "expr=Id=%s&count=10000&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % id
+    expr = "expr=Id=%s&count=1&attributes=Id,AA.AuId,AA.AfId,RId,C.CId,F.FId,J.JId" % id
     api_return = query_api(expr)
     res_json = json.loads(api_return)
     if "entities" in res_json:
